@@ -1,2 +1,5 @@
 # binz
-for now, just a utility to easily include colors in shell scripts
+useful shell utils
+
+- colorsh : non-POSIX compliant (#!/bin/bash)
+- mkmtreesh : POSIX compliant; uses mtree and openssl
