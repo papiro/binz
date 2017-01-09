@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "(i)nit mtree or (c)ompare mtree?"
+read cmd
+echo "enter seed"
+read seed
+
+case $cmd in
+  "i")
+    for i in bin sbin usr-bin usr-sbin usr-local-bin etc usr-local-etc; do
+      p=/`echo $i | sed s!-!/!g`
+      mtree -s $seed -p $p -c -K cksum,sha256 > /root/.${i}_chksum_mtree
+      openssl enc -bf -salt -in /root/.${i}_chksum_mtree -out /root/.${i}_chksum_mtree.enc -e
+      rm /root/.${i}_chksum_mtree
+    done 
+    ;;
+  "c")
+    for i in bin sbin usr-bin usr-sbin usr-local-bin etc usr-local-etc; do
+      p=/`echo $i | sed s!-!/!g`
+      openssl enc -bf -in /root/.${i}_chksum_mtree.enc -out /root/.${i}_chksum_mtree -d
+      if [ $(mtree -s $seed -p $p < /root/.${i}_chksum_mtree) ]; then
+        echo "something's been changed..."
+      elif
+        rm /root/.${i}_chksum_mtree
+      fi
+    done 
+    ;;
+  *) echo "enter i or c, or Ctrl+C to quit"
+esac
